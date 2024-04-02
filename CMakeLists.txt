@@ -9,10 +9,12 @@ find_package(glog 0.7.0 REQUIRED)
 set(SOURCE_FILES
     main.cpp
     window_manager.cpp
+    window_utils.cpp
 )
 
 set(HEADER_FILES
     window_manager.hpp
+    window_utils.hpp
 )
 
 add_executable(FrogWM

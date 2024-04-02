@@ -1,9 +1,12 @@
 #include "window_manager.hpp"
+#include "window_utils.hpp"
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <glog/logging.h>
 
 using ::std::unique_ptr;
+
+bool WindowManager::wm_detected_ = false;
 
 unique_ptr<WindowManager> WindowManager::Create() {
     // 1. Open X Display.
@@ -53,7 +56,7 @@ void WindowManager::Run() {
      */
     Window returned_root, returned_parent;
     Window* top_level_windows;
-    unsinged int num_top_level_windows;
+    unsigned int num_top_level_windows;
     CHECK(XQueryTree(
         display_,
         root_,
@@ -65,7 +68,7 @@ void WindowManager::Run() {
     CHECK_EQ(returned_root, root_);
 
     //    ii. Frame each Top-Level window.
-    for(unsinged int i = 0; i < num_top_level_windows; ++i) {
+    for(unsigned int i = 0; i < num_top_level_windows; ++i) {
         Frame(top_level_windows[i], true /* was_created_before_window_manager */);
     }
 
@@ -96,7 +99,7 @@ void WindowManager::Run() {
                 OnConfigureRequest(e.xconfigurerequest);
                 break;
             case ConfigureNotify:
-                OnConfigureNotfiy(e.xconfigure);
+                OnConfigureNotify(e.xconfigure);
                 break;
             case MapRequest:
                 OnMapRequest(e.xmaprequest);
@@ -186,7 +189,17 @@ void WindowManager::Unframe(Window w) {
 }
 
 int WindowManager::OnXError(Display* display, XErrorEvent* e) {
-    // Print e
+    const size_t MAX_ERROR_MESSAGE_LENGTH = 1024;
+    char error_message[MAX_ERROR_MESSAGE_LENGTH];
+    XGetErrorText(display, e->error_code, error_message, MAX_ERROR_MESSAGE_LENGTH);
+
+    LOG(ERROR) << "Received X error:\n"
+        << "    Request: " << int(e->request_code)
+        << " - " << (e->request_code) << "\n"
+        << "    Error code: " << int(e->error_code)
+        << " - " << error_message << "\n"
+        << "    Resource ID: " << e->resourceid;
+    return 0;
 }
 
 void WindowManager::OnCreateNotify(const XCreateWindowEvent& e) {
@@ -216,12 +229,12 @@ void WindowManager::OnConfigureRequest(const XConfigureRequestEvent& e) {
     if(clients_.count(e.window)) {
         const Window frame = clients_[e.window];
         XConfigureWindow(display_, frame, e.value_mask, &changes);
-        LOG(INFO) << "Resize [" << frame << "] to " << Size<int>(e.width, e.height);
+        LOG(INFO) << "Resize [" << frame << "] to " << Size<int>(e.width, e.height).ToString();
     }
 
     // Grant request by calling XConfigureWindow().
     XConfigureWindow(display_, e.window, e.value_mask, &changes);
-    LOG(INFO) << "Resize " << e.window << " to " << Size<int>(e.width, e.height);
+    LOG(INFO) << "Resize " << e.window << " to " << Size<int>(e.width, e.height).ToString();
 }
 
 void WindowManager::OnConfigureNotify(const XConfigureEvent& e) {

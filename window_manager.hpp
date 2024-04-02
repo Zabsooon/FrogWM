@@ -1,8 +1,12 @@
+#ifndef FrogWM
+#define FrogWM
+
 #include <X11/X.h>
 #include <unordered_map>
 extern "C" {
 #include <X11/Xlib.h>
 }
+#include "window_utils.hpp"
 #include <memory>
 
 class WindowManager {
@@ -40,7 +44,7 @@ class WindowManager {
         static bool wm_detected_;
     private:
         // Invoked internally by Create().
-       WindowManager(Display* display);
+        WindowManager(Display* display);
 
         // Handle to the underlying Xlib Display struct.
         Display* display_;
@@ -48,3 +52,5 @@ class WindowManager {
         const Window root_;
         ::std::unordered_map<Window, Window> clients_;
 };
+
+#endif // FrogWM
