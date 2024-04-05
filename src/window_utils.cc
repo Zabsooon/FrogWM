@@ -1,4 +1,4 @@
-#include "window_utils.hpp"
+#include "window_utils.h"
 #include <X11/Xlib.h>
 #include <ostream>
 #include <vector>

@@ -1,12 +1,17 @@
-#include "window_manager.hpp"
-#include "window_utils.hpp"
+#include "window_manager.h"
+#include "window_utils.h"
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <glog/logging.h>
+#include "config.h"
 
 using ::std::unique_ptr;
 
 bool WindowManager::wm_detected_ = false;
+
+const char* WindowManager::Version() {
+    return FROGWM_NAME " " FROGWM_VERSION "\n";
+}
 
 unique_ptr<WindowManager> WindowManager::Create() {
     // 1. Open X Display.

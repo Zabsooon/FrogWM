@@ -1,0 +1,22 @@
+#ifndef FROGWM_CONFIG_H_
+#define FROGWM_CONFIG_H_
+
+#define FROGWM_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
+#define FROGWM_VERSION_MINOR "@PROJECT_VERSION_MINOR@"
+#define FROGWM_VERSION_PATCH "@PROJECT_VERSION_PATCH@"
+
+namespace frogwm {
+
+class Config {
+
+    // TODO:
+    // Implement configuration functionality
+};
+
+} // namespace frogwm
+
+
+#define FROGWM_NAME "@PROJECT_NAME@"
+#define FROGWM_VERSION "@PROJECT_VERSION@"
+
+#endif // FROGWM_CONFIG_H

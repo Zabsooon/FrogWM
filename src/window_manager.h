@@ -6,11 +6,14 @@
 extern "C" {
 #include <X11/Xlib.h>
 }
-#include "window_utils.hpp"
+#include "window_utils.h"
 #include <memory>
+
+namespace frogwm {
 
 class WindowManager {
     public:
+        static const char* Version();
         // Factory method for establishing a connection to an X server and creating a
         // WindowManager instance.
         static ::std::unique_ptr<WindowManager> Create();
@@ -32,7 +35,7 @@ class WindowManager {
         void Frame(Window w, bool was_created_before_window_manager);
         void Unframe(Window w);
 
-        // Xlib window notify event handlers
+        // XEvent handlers
         void OnCreateNotify(const XCreateWindowEvent& e);
         void OnDestroyNotify(const XDestroyWindowEvent& e);
         void OnReparentNotify(const XReparentEvent& e);
@@ -52,5 +55,7 @@ class WindowManager {
         const Window root_;
         ::std::unordered_map<Window, Window> clients_;
 };
+
+} // namespace frogwm
 
 #endif // FrogWM
