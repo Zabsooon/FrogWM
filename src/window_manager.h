@@ -42,7 +42,14 @@ class WindowManager {
         void OnConfigureRequest(const XConfigureRequestEvent& e);
         void OnConfigureNotify(const XConfigureEvent& e);
         void OnMapRequest(const XMapRequestEvent& e);
+        void OnMapNotify(const XMapEvent& e);
         void OnUnmapNotify(const XUnmapEvent& e);
+        void OnKeyPress(const XKeyEvent& e);
+        void OnButtonPress(const XButtonEvent& e);
+        void OnButtonRelease(const XButtonReleasedEvent& e);
+        void OnMotionNotify(const XButtonEvent& e);
+        void OnEnterNotify(const XEnterWindowEvent& e);
+        void OnClientMessage(const XClientMessageEvent& e);
 
         static bool wm_detected_;
     private:

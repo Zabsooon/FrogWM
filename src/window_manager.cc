@@ -7,13 +7,13 @@
 
 using ::std::unique_ptr;
 
-bool WindowManager::wm_detected_ = false;
+bool frogwm::WindowManager::wm_detected_ = false;
 
-const char* WindowManager::Version() {
+const char* frogwm::WindowManager::Version() {
     return FROGWM_NAME " " FROGWM_VERSION "\n";
 }
 
-unique_ptr<WindowManager> WindowManager::Create() {
+unique_ptr<frogwm::WindowManager> frogwm::WindowManager::Create() {
     // 1. Open X Display.
     Display* display = XOpenDisplay(nullptr);
     if (display == nullptr) {
@@ -24,15 +24,15 @@ unique_ptr<WindowManager> WindowManager::Create() {
     return unique_ptr<WindowManager>(new WindowManager(display));
 }
 
-WindowManager::WindowManager(Display* display)
+frogwm::WindowManager::WindowManager(Display* display)
     : display_(CHECK_NOTNULL(display)),
     root_(DefaultRootWindow(display_)) {}
 
-WindowManager::~WindowManager() {
+frogwm::WindowManager::~WindowManager() {
     XCloseDisplay(display_);
 }
 
-void WindowManager::Run() {
+void frogwm::WindowManager::Run() {
     // 1. Initiallization.
     //  a. Select events on root window. Use a special error handler so we can
     //  exit gracefully if another window manager is already running.
@@ -109,17 +109,39 @@ void WindowManager::Run() {
             case MapRequest:
                 OnMapRequest(e.xmaprequest);
                 break;
+            case MapNotify:
+                OnMapNotify(e.xmap);
+                break;
             case UnmapNotify:
                 OnUnmapNotify(e.xunmap);
+                break;
+            case KeyPress:
+                OnKeyPress(e.xkey);
+                break;
+            case ButtonPress:
+                OnButtonPress(e.xbutton);
+                break;
+            case ButtonRelease:
+                OnButtonRelease(e.xbutton);
+                break;
+            case MotionNotify:
+                OnMotionNotify(e.xbutton);
+                break;
+            case EnterNotify:
+                OnEnterNotify(e.xcrossing);
+                break;
+            case ClientMessage:
+                OnClientMessage(e.xclient);
                 break;
 
             default:
                 LOG(WARNING) << "Ignored event";
+                break;
         }
     }
 }
 
-int WindowManager::OnWMDetected(Display* display, XErrorEvent* e) {
+int frogwm::WindowManager::OnWMDetected(Display* display, XErrorEvent* e) {
     // In case of another window manager already running, the error code from
     // XSelectInput is BadAccess. We don't expect this handler to recive any
     // other errors.
@@ -130,7 +152,7 @@ int WindowManager::OnWMDetected(Display* display, XErrorEvent* e) {
     return 0;
 }
 
-void WindowManager::Frame(Window w, bool was_created_before_window_manager) {
+void frogwm::WindowManager::Frame(Window w, bool was_created_before_window_manager) {
 
     // Visual properties of the frame to create.
     const unsigned int BORDER_WIDTH = 3;
@@ -178,7 +200,7 @@ void WindowManager::Frame(Window w, bool was_created_before_window_manager) {
     LOG(INFO) << "Framed window " << w << " [" << frame << "]";
 }
 
-void WindowManager::Unframe(Window w) {
+void frogwm::WindowManager::Unframe(Window w) {
     const Window frame = clients_[w];
 
     XUnmapWindow(display_, frame);
@@ -193,7 +215,7 @@ void WindowManager::Unframe(Window w) {
     LOG(INFO) << "Unframed window " << w << " [" << frame << "]";
 }
 
-int WindowManager::OnXError(Display* display, XErrorEvent* e) {
+int frogwm::WindowManager::OnXError(Display* display, XErrorEvent* e) {
     const size_t MAX_ERROR_MESSAGE_LENGTH = 1024;
     char error_message[MAX_ERROR_MESSAGE_LENGTH];
     XGetErrorText(display, e->error_code, error_message, MAX_ERROR_MESSAGE_LENGTH);
@@ -207,19 +229,19 @@ int WindowManager::OnXError(Display* display, XErrorEvent* e) {
     return 0;
 }
 
-void WindowManager::OnCreateNotify(const XCreateWindowEvent& e) {
+void frogwm::WindowManager::OnCreateNotify(const XCreateWindowEvent& e) {
 
 }
 
-void WindowManager::OnDestroyNotify(const XDestroyWindowEvent& e) {
+void frogwm::WindowManager::OnDestroyNotify(const XDestroyWindowEvent& e) {
 
 }
 
-void WindowManager::OnReparentNotify(const XReparentEvent& e) {
+void frogwm::WindowManager::OnReparentNotify(const XReparentEvent& e) {
 
 }
 
-void WindowManager::OnConfigureRequest(const XConfigureRequestEvent& e) {
+void frogwm::WindowManager::OnConfigureRequest(const XConfigureRequestEvent& e) {
     XWindowChanges changes;
 
     // Copy fields from e to changes.
@@ -242,16 +264,20 @@ void WindowManager::OnConfigureRequest(const XConfigureRequestEvent& e) {
     LOG(INFO) << "Resize " << e.window << " to " << Size<int>(e.width, e.height).ToString();
 }
 
-void WindowManager::OnConfigureNotify(const XConfigureEvent& e) {
+void frogwm::WindowManager::OnConfigureNotify(const XConfigureEvent& e) {
 
 }
 
-void WindowManager::OnMapRequest(const XMapRequestEvent& e) {
+void frogwm::WindowManager::OnMapRequest(const XMapRequestEvent& e) {
     Frame(e.window, false);
     XMapWindow(display_, e.window);
 }
 
-void WindowManager::OnUnmapNotify(const XUnmapEvent& e) {
+void frogwm::WindowManager::OnMapNotify(const XMapEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnUnmapNotify(const XUnmapEvent& e) {
     /* If the window is a client window we manage, unframe it upon UnmapNotify.
      * We need the check because we will receive an UnmapNotify event for a frame
      * window we just destroyed ourselves
@@ -278,4 +304,28 @@ void WindowManager::OnUnmapNotify(const XUnmapEvent& e) {
     }
 
     Unframe(e.window);
+}
+
+void frogwm::WindowManager::OnKeyPress(XKeyEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnButtonPress(XButtonEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnButtonRelease(XButtonReleasedEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnMotionNotify(XButtonEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnEnterNotify(XEnterWindowEvent& e) {
+
+}
+
+void frogwm::WindowManager::OnClientMessage(XClientMessageEvent& e) {
+
 }
