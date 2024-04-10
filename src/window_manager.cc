@@ -261,6 +261,13 @@ void frogwm::WindowManager::OnConfigureRequest(const XConfigureRequestEvent& e) 
 
     // Grant request by calling XConfigureWindow().
     XConfigureWindow(display_, e.window, e.value_mask, &changes);
+
+    if(hidden_clients_.find(e.window) != hidden_clients_.end()) {
+        hidden_clients_.erase(e.window);
+        /* TODO:
+         * manage client
+         */
+    }
     LOG(INFO) << "Resize " << e.window << " to " << Size<int>(e.width, e.height).ToString();
 }
 

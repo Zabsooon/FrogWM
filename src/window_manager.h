@@ -1,13 +1,15 @@
-#ifndef FrogWM
-#define FrogWM
+#ifndef FROGWM_WINDOW_MANAGER_H_
+#define FROGWM_WINDOW_MANAGER_H_
 
 #include <X11/X.h>
 #include <unordered_map>
+#include <unordered_set>
+#include <memory>
 extern "C" {
 #include <X11/Xlib.h>
 }
 #include "window_utils.h"
-#include <memory>
+#include "client.h"
 
 namespace frogwm {
 
@@ -61,8 +63,14 @@ class WindowManager {
         // Handle to root window.
         const Window root_;
         ::std::unordered_map<Window, Window> clients_;
+
+        /* Some programs (for example Stream) tend to work in background...
+         * this is the structure to keep track of them so we won't destroy them
+         * if those programs just want to work in the background
+         */
+        ::std::unordered_set<Client> hidden_clients_;
 };
 
 } // namespace frogwm
 
-#endif // FrogWM
+#endif // FROGWM_WINDOW_MANAGER_H_
